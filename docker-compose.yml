@@ -44,7 +44,7 @@ services:
     depends_on:
       - postgres
     container_name: "ilp-kit"
-    image: "interledgerjs/ilp-kit:latest"
+    image: "bloqify/ilp-kit:latest"
 # enable this for development, with a local ilp-kit folder
 #    build: "ilp-kit"
     volumes:
@@ -56,6 +56,8 @@ services:
         aliases:
           - "ilp-kit"
     ports:
+      - "3000:3000"
+      - "3010:3010"
       - "3100:3100"
       - "3101:3101"
     environment:
