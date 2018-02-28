@@ -7,11 +7,14 @@ RUN echo "deb http://ftp.debian.org/debian jessie-backports main" \
 RUN update-ca-certificates
 
 RUN mkdir -p /opt
+RUN mkdir -p /etc/nginx/sites-available
+RUN mkdir -p /etc/nginx/sites-enabled
+
 WORKDIR /opt
 
 COPY ./le.sh /opt
 RUN chmod +x /opt/le.sh
-COPY ./default.conf /etc/nginx/conf.d/default.conf
+#COPY ./default.conf /etc/nginx/conf.d/default.conf
 COPY ./site.conf /opt/site.conf
 
 EXPOSE 80

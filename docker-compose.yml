@@ -6,8 +6,8 @@ services:
 
   letsencrypt:
     depends_on:
-      - ledger1
-      - ledger2
+      - "ledger1"
+      - "ledger2"
     container_name: "letsencrypt"
     build: "nginx-letsencrypt-proxy"
     volumes:
@@ -26,11 +26,27 @@ services:
         aliases:
           - "letsencrypt"
 
-  postgres:
-    container_name: "postgres"
+  postgres1:
+    container_name: "postgres1"
     image: "postgres:latest"
     volumes:
-      - "./data/postgres-data:/var/lib/postgresql/data"
+      - "./data/postgres1-data:/var/lib/postgresql/data"
+    environment:
+      PGDATA: "/var/lib/postgresql/data"
+      POSTGRES_DB: "ilp-kit-db"
+      # TODO: should these be randomized?
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "${ILP_SECRET}"
+    networks:
+      kit:
+        aliases:
+          - "postgres"
+
+  postgres2:
+    container_name: "postgres2"
+    image: "postgres:latest"
+    volumes:
+      - "./data/postgres2-data:/var/lib/postgresql/data"
     environment:
       PGDATA: "/var/lib/postgresql/data"
       POSTGRES_DB: "ilp-kit-db"
@@ -44,7 +60,7 @@ services:
 
   ledger1:
     depends_on:
-      - postgres
+      - "postgres1"
     container_name: "${ILP_LEDGER1_HOST}"
     image: "bloqify/ilp-kit:latest"
 # enable this for development, with a local ilp-kit folder
@@ -57,13 +73,8 @@ services:
       kit:
         aliases:
           - "${ILP_LEDGER1_HOST}"
-    ports:
-      - "3000:3000"
-      - "3010:3010"
-      - "3100:3100"
-      - "3101:3101"
     environment:
-      DB_URI: "postgres://admin:${ILP_SECRET}@postgres/${ILP_LEDGER1_HOST}-db"
+      DB_URI: "postgres://admin:${ILP_SECRET}@postgres1/ilp-kit-db"
       API_HOSTNAME: "${ILP_LEDGER1_HOST}.${ILP_DOMAIN}"
       API_PORT: "3100"
       API_PRIVATE_HOSTNAME: "localhost"
@@ -92,7 +103,7 @@ services:
 
   ledger2:
     depends_on:
-      - postgres
+      - "postgres2"
     container_name: "${ILP_LEDGER2_HOST}"
     image: "bloqify/ilp-kit:latest"
 # enable this for development, with a local ilp-kit folder
@@ -105,13 +116,8 @@ services:
       kit:
         aliases:
           - "${ILP_LEDGER2_HOST}"
-    ports:
-      - "3000:3000"
-      - "3010:3010"
-      - "3100:3100"
-      - "3101:3101"
     environment:
-      DB_URI: "postgres://admin:${ILP_SECRET}@postgres/${ILP_LEDGER2_HOST}-db"
+      DB_URI: "postgres://admin:${ILP_SECRET}@postgres2/ilp-kit-db"
       API_HOSTNAME: "${ILP_LEDGER2_HOST}.${ILP_DOMAIN}"
       API_PORT: "3100"
       API_PRIVATE_HOSTNAME: "localhost"
